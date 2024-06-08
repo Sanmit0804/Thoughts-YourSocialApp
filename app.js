@@ -17,6 +17,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
+const secret = process.env.JWT_SECRET;
 
 app.get("/", (req, res) => {
   res.render("index");
@@ -34,7 +35,7 @@ app.get("/home", async (req, res) => {
 
     // If token exists, fetch the user
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, secret);
       user = await userModel
         .findOne({ email: decoded.email })
         .populate("posts");
@@ -156,7 +157,7 @@ app.post("/register", async (req, res) => {
         gender,
       });
 
-      let token = jwt.sign({ email: email, userid: user._id }, "process.env.JWT_SECRET");
+      let token = jwt.sign({ email: email, userid: user._id }, secret);
       res.cookie("token", token);
       // res.send("Registered!!");
       res.redirect("login");
@@ -173,7 +174,7 @@ app.post("/login", async (req, res) => {
   bcrypt.compare(password, user.password, (err, result) => {
     // console.log(result);
     if (result) {
-      let token = jwt.sign({ email: email, userid: user._id }, "process.env.JWT_SECRET");
+      let token = jwt.sign({ email: email, userid: user._id }, secret);
       res.cookie("token", token);
       return res.status(200).redirect("/profile");
     } else {
@@ -192,7 +193,7 @@ function isLoggedIn(req, res, next) {
   if (req.cookies.token === "") {
     return res.send("You must be loggedIn");
   } else {
-    let data = jwt.verify(req.cookies.token, "process.env.JWT_SECRET");
+    let data = jwt.verify(req.cookies.token, secret);
     req.user = data;
     next();
   }
