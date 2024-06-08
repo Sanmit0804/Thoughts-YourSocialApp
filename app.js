@@ -34,7 +34,7 @@ app.get("/home", async (req, res) => {
 
     // If token exists, fetch the user
     if (token) {
-      const decoded = jwt.verify(token, "sanmitsuthar");
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       user = await userModel
         .findOne({ email: decoded.email })
         .populate("posts");
@@ -156,7 +156,7 @@ app.post("/register", async (req, res) => {
         gender,
       });
 
-      let token = jwt.sign({ email: email, userid: user._id }, "sanmitsuthar");
+      let token = jwt.sign({ email: email, userid: user._id }, "process.env.JWT_SECRET");
       res.cookie("token", token);
       // res.send("Registered!!");
       res.redirect("login");
@@ -173,7 +173,7 @@ app.post("/login", async (req, res) => {
   bcrypt.compare(password, user.password, (err, result) => {
     // console.log(result);
     if (result) {
-      let token = jwt.sign({ email: email, userid: user._id }, "sanmitsuthar");
+      let token = jwt.sign({ email: email, userid: user._id }, "process.env.JWT_SECRET");
       res.cookie("token", token);
       return res.status(200).redirect("/profile");
     } else {
@@ -192,7 +192,7 @@ function isLoggedIn(req, res, next) {
   if (req.cookies.token === "") {
     return res.send("You must be loggedIn");
   } else {
-    let data = jwt.verify(req.cookies.token, "sanmitsuthar");
+    let data = jwt.verify(req.cookies.token, "process.env.JWT_SECRET");
     req.user = data;
     next();
   }
