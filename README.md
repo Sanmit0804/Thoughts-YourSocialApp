@@ -47,6 +47,7 @@ Thoughts is a social media application where users can register, log in, create 
    The server will start on http://localhost:3000.
 
 ## Directory Structure 
+```plain text
 .
 ├── config
 │   └── multerConfig.js
@@ -69,6 +70,7 @@ Thoughts is a social media application where users can register, log in, create 
 ├── app.js
 ├── package.json
 └── README.md
+```
 
 
 ## Usage
@@ -91,3 +93,8 @@ Thoughts is a social media application where users can register, log in, create 
 ## Middleware
 ### isLoggedIn
 This middleware checks if the user is logged in by verifying the JWT token stored in the cookies. If the token is valid, the user is allowed to access the protected routes. Otherwise, they are redirected to the login page.
+
+## ScreenShots
+### Home page
+![image](https://github.com/Sanmit0804/Thoughts/assets/104015673/bfa4b8bb-d3ee-4640-a75c-cade23513b2c)
+
