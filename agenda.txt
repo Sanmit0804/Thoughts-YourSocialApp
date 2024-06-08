@@ -1,0 +1,7 @@
+-> Users can post
+-> Login and Register
+-> Logout
+-> Post Creation
+-> Post Like
+-> Post Delete
+-> Upload pfp
