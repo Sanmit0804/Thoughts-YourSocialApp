@@ -2,11 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
-const userModel = require("./models/user");
-const postModel = require("./models/post");
+const userModel = require("./models/user.models");
+const postModel = require("./models/post.models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const user = require("./models/user");
+const user = require("./models/user.models");
 const upload = require("./config/multerConfig");
 const path = require("path");
 
