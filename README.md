@@ -52,8 +52,8 @@ Thoughts is a social media application where users can register, log in, create 
 ├── config
 │   └── multerConfig.js
 ├── models
-│   ├── post.js
-│   └── user.js
+│   ├── post.models.js
+│   └── user.models.js
 ├── public
 │   └── uploads
 ├── views
