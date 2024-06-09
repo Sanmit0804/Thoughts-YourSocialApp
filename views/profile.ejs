@@ -19,6 +19,10 @@
         h1, h3, h5 {
             font-family: 'Roboto', sans-serif;
         }
+        .hidden {
+             display: none;
+        }
+
     </style>
 </head>
 <body class="bg-white text-black">
@@ -58,7 +62,7 @@
                 <% user.posts.reverse().forEach(post => { %>
                 <div class="bg-gray-100 p-6 rounded-lg shadow-md">
                     <div class="flex items-center m-1">
-                        <img src="/image/uploads/<%=user.profilePic %>" alt="Profile Picture" class="w-5 h-5 rounded-full ">
+                        <img src="/image/uploads/<%=user.profilePic %>" alt="Profile Picture" class="w-5 h-5 rounded-full object-cover ">
                         <h3 class="text-lg font-bold ml-2 "><%= user.username %></h3>
                     </div>
                     <p class="text-gray-600 mb-4"><%= post.content %></p>
@@ -72,10 +76,46 @@
                         <a href="/edit/<%= post._id%>" class="text-gray-600 hover:text-blue-400">Edit</a>
                         <a href="/delete/<%= post._id%>" class="text-gray-600 hover:text-red-400">Delete</a>
                     </div>
+
+                    <!-- Comments Section -->
+                    <div class="mt-4">
+                        <h4 class="text-lg font-bold mb-2"><a href="/comments/<%= post._id %>">Comments</a></h4>
+                        <% comments.slice(0, 2).forEach(comment => { %>
+                        <div class="bg-white p-2 rounded-lg shadow-md mb-2">
+                            <div class="flex items-center mb-1">
+                            <img src="/image/uploads/<%= comment.createdBy.profilePic %>" alt="Profile Picture" class="w-4 h-4 rounded-full object-cover">
+                            <h5 class="text-sm font-bold ml-2"><%= comment.createdBy.username %></h5>
+                            </div>
+                            <p class="text-gray-600"><%= comment.content %></p>
+                        </div>
+                        <% }) %>
+                        
+                        <% if(comments.length > 2) { %>
+                        <button id="show-all-comments" class="text-blue-500 hover:underline">All comments</button>
+                        <div id="all-comments" class="hidden">
+                            <% comments.slice(2).forEach(comment => { %>
+                            <div class="bg-white p-2 rounded-lg shadow-md mb-2">
+                                <div class="flex items-center mb-1">
+                                <img src="/image/uploads/<%= comment.createdBy.profilePic %>" alt="Profile Picture" class="w-4 h-4 rounded-full object-cover">
+                                <h5 class="text-sm font-bold ml-2"><%= comment.createdBy.username %></h5>
+                                </div>
+                                <p class="text-gray-600"><%= comment.content %></p>
+                            </div>
+                            <% }) %>
+                        </div>
+                        <% } %>
+                    </div>
                 </div>
                 <% }); %>
             </div>
         </div>
     </div>
+    <script>
+        document.querySelectorAll('.show-all-comments').forEach(button => {
+            button.addEventListener('click', function() {
+                this.nextElementSibling.classList.toggle('hidden');
+            });
+        });
+    </script>
 </body>
 </html>

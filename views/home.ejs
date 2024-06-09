@@ -21,14 +21,18 @@
       h5 {
         font-family: "Roboto", sans-serif;
       }
+      .hidden {
+        display: none;
+      }
+
     </style>
     <link rel="stylesheet" href="../public/stylesheets/style.css" />
     <link rel="stylesheet" href="../public/stylesheets/style.scss" />
   </head>
   <body class="bg-white text-black">
-
-
-    <div class="header p-4 flex justify-between items-center bg-gray-100 shadow-md">
+    <div
+      class="header p-4 flex justify-between items-center bg-gray-100 shadow-md"
+    >
       <a href="/home"><h1 class="text-3xl font-bold">Thoughts</h1></a>
       <%if (token) { %>
       <a href="/logout" class="text-black hover:text-gray-600 transition-colors"
@@ -101,10 +105,45 @@
               >
               <% } %>
             </div>
+             <!-- Comments Section -->
+             <div class="mt-4">
+              <h4 class="text-lg font-bold mb-2"><a href="/comments/<%= post._id %>">Comments</a></h4>
+              <% comments.slice(0, 2).forEach(comment => { %>
+              <div class="bg-white p-2 rounded-lg shadow-md mb-2">
+                  <div class="flex items-center mb-1">
+                  <img src="/image/uploads/<%= comment.createdBy.profilePic %>" alt="Profile Picture" class="w-4 h-4 rounded-full object-cover">
+                  <h5 class="text-sm font-bold ml-2"><%= comment.createdBy.username %></h5>
+                  </div>
+                  <p class="text-gray-600"><%= comment.content %></p>
+              </div>
+              <% }) %>
+              
+              <% if(comments.length > 2) { %>
+              <button id="show-all-comments" class="text-blue-500 hover:underline">All comments</button>
+              <div id="all-comments" class="hidden">
+                  <% comments.slice(2).forEach(comment => { %>
+                  <div class="bg-white p-2 rounded-lg shadow-md mb-2">
+                      <div class="flex items-center mb-1">
+                      <img src="/image/uploads/<%= comment.createdBy.profilePic %>" alt="Profile Picture" class="w-4 h-4 rounded-full object-cover">
+                      <h5 class="text-sm font-bold ml-2"><%= comment.createdBy.username %></h5>
+                      </div>
+                      <p class="text-gray-600"><%= comment.content %></p>
+                  </div>
+                  <% }) %>
+              </div>
+              <% } %>
+          </div>
           </div>
           <% }); %>
         </div>
       </div>
     </div>
+    <script>
+      document.querySelectorAll('.show-all-comments').forEach(button => {
+          button.addEventListener('click', function() {
+              this.nextElementSibling.classList.toggle('hidden');
+          });
+      });
+  </script>
   </body>
 </html>

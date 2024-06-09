@@ -2,13 +2,15 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
-const userModel = require("./models/user");
-const postModel = require("./models/post");
+const userModel = require("./models/user.models");
+const postModel = require("./models/post.models");
+const commentsModel = require("./models/comments.models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const user = require("./models/user");
+const user = require("./models/user.models");
 const upload = require("./config/multerConfig");
 const path = require("path");
+const postModels = require("./models/post.models");
 
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -28,6 +30,7 @@ app.get("/home", async (req, res) => {
     // Fetch users and posts
     let users = await userModel.find({});
     let posts = await postModel.find({}).populate("user");
+    let comments = await commentsModel.find({}).populate("createdBy");
 
     // Check for token in cookies
     let token = req.cookies.token;
@@ -42,7 +45,7 @@ app.get("/home", async (req, res) => {
     }
 
     // Render home template with appropriate data
-    res.render("home", { users, posts, token, user });
+    res.render("home", { users, posts, token, user, comments });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal server error");
@@ -80,12 +83,25 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/profile", isLoggedIn, async (req, res) => {
-  // console.log(req.user);
-  let user = await userModel
-    .findOne({ email: req.user.email })
-    .populate("posts");
-  // console.log(user.posts);
-  res.render("profile", { user });
+  try {
+    let user = await userModel.findOne({ email: req.user.email }).populate({
+      path: "posts",
+      populate: {
+        path: "comments",
+        populate: { path: "createdBy" }, // Assuming each comment has a createdBy field that references a user
+      },
+    });
+
+    // Flatten the comments into a single array
+    const comments = user.posts.reduce((acc, post) => {
+      return acc.concat(post.comments);
+    }, []);
+
+    res.render("profile", { user, comments });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
 });
 
 app.get("/profile/:id", isLoggedIn, async (req, res) => {
@@ -105,6 +121,43 @@ app.get("/like/:id", isLoggedIn, async (req, res) => {
 
   await post.save();
   res.redirect("/profile");
+});
+
+app.get("/comments/:id", async (req, res) => {
+  const post = await postModel
+    .findOne({ _id: req.params.id })
+    .populate("user")
+    .populate({
+      path: "comments",
+      populate: { path: "createdBy" },
+    })
+    .exec();
+  res.render("comments", { post });
+});
+
+// Assuming you have middleware to get the current user, e.g., req.user
+app.post("/comments/:id", async (req, res) => {
+  try {
+    const post = await postModel.findById(req.params.id).populate("comments");
+
+    if (!post) {
+      return res.status(404).send("Post not found");
+    }
+
+    const { content } = req.body;
+    const comment = await commentsModel.create({
+      createdBy: post.user._id, // Assuming req.user contains the current user's info
+      content,
+    });
+
+    post.comments.push(comment._id);
+    await post.save();
+
+    res.redirect(`/comments/${req.params.id}`);
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.get("/edit/:id", isLoggedIn, async (req, res) => {

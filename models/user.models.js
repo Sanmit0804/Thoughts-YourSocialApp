@@ -2,13 +2,7 @@ const mongoose = require("mongoose");
 
 require("dotenv").config();
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Could not connect to MongoDB", err));
+mongoose.connect(process.env.MONGODB_URI);
 
 const userSchema = mongoose.Schema({
   username: {
@@ -30,13 +24,13 @@ const userSchema = mongoose.Schema({
   profilePic: {
     type: String,
     default: function () {
-      console.log("Gender:", this.gender); 
+      console.log("Gender:", this.gender);
       if (this.gender == "Female") {
         return "defaultFemale.png";
       } else if (this.gender == "Male") {
         return "defaultMale.png";
       } else {
-        return "default.png"; 
+        return "default.png";
       }
     },
   },
@@ -44,11 +38,17 @@ const userSchema = mongoose.Schema({
   posts: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "post",
+      ref: "Post",
+    },
+  ],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comments",
     },
   ],
 });
 
-const user = mongoose.model("user", userSchema);
+const User = mongoose.model("User", userSchema);
 
-module.exports = user;
+module.exports = User;
